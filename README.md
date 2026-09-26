@@ -47,7 +47,7 @@ tkinter входит в стандартную поставку Python и отд
 
 1. Клонирование репозитория
 
-git clone https://github.com/251709/fractal-tree.git
+git clone https://github.com/251709/unic.git
 cd fractal-tree
 
 2. Создание виртуального окружения
