@@ -1,5 +1,5 @@
 from math import sin, cos, radians
-from tkinter import Canvas, Tk
+from tkinter import Canvas, Scale, Tk
 
 
 def create_line_by_angle(canvas, x1, y1, length, angle_degrees, **kwargs):
@@ -79,18 +79,34 @@ def create_fractal_branch(
 
 if __name__ == "__main__":
     root = Tk()
-    root.geometry("600x600")
+    root.geometry("600x680")
 
     canvas = Canvas(root, width=600, height=600, bg="white")
     canvas.pack()
 
-    create_fractal_tree(
-        canvas,
-        first_length=140,
-        k_l=0.7,
-        delta_angle=15,
-        depth=10,
-        line_style={"fill": "darkgreen", "width": 3},
+    def redraw_tree(angle):
+        canvas.delete("all")
+        create_fractal_tree(
+            canvas,
+            first_length=140,
+            k_l=0.7,
+            delta_angle=float(angle),
+            depth=10,
+            line_style={"fill": "darkgreen", "width": 3},
+        )
+
+    angle_slider = Scale(
+        root,
+        from_=0,
+        to=90,
+        orient="horizontal",
+        label="Угол поворота",
+        command=redraw_tree,
+        length=580,
     )
+    angle_slider.set(15)
+    angle_slider.pack()
+
+    redraw_tree(angle_slider.get())
 
     root.mainloop()
