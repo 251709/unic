@@ -67,6 +67,7 @@ class Application:
         self.start_button.config(state="disabled")
 
         astar = AStar(self.grid)
+
         self.path, self.visited_order = astar.find_path()
 
         self.current_step = 0
@@ -79,10 +80,34 @@ class Application:
             self.show_path()
             return
 
+        # Предыдущая клетка становится посещённой
+        if self.current_step > 0:
+            prev_row, prev_col = self.visited_order[
+                self.current_step - 1
+            ]
+
+            if (
+                (prev_row, prev_col) != self.grid.start
+                and (prev_row, prev_col) != self.grid.end
+            ):
+                self.draw_cell(
+                    prev_row,
+                    prev_col,
+                    "lightblue",
+                )
+
+        # Текущая клетка становится жёлтой
         row, col = self.visited_order[self.current_step]
 
-        if (row, col) != self.grid.start and (row, col) != self.grid.end:
-            self.draw_cell(row, col, "yellow")
+        if (
+            (row, col) != self.grid.start
+            and (row, col) != self.grid.end
+        ):
+            self.draw_cell(
+                row,
+                col,
+                "yellow",
+            )
 
         self.current_step += 1
 
@@ -90,9 +115,21 @@ class Application:
 
     def show_path(self):
         """Показывает найденный путь."""
+        if not self.path:
+            print("Путь не найден")
+            self.start_button.config(state="normal")
+            return
+
         for row, col in self.path:
-            if (row, col) != self.grid.start and (row, col) != self.grid.end:
-                self.draw_cell(row, col, "green")
+            if (
+                (row, col) != self.grid.start
+                and (row, col) != self.grid.end
+            ):
+                self.draw_cell(
+                    row,
+                    col,
+                    "green",
+                )
 
         self.start_button.config(state="normal")
 
