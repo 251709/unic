@@ -1,6 +1,7 @@
 import tkinter as tk
 
 from src.grid import Grid
+from src.astar import AStar
 
 CELL_SIZE = 30
 
@@ -56,6 +57,15 @@ class Application:
 
 
 if __name__ == "__main__":
+    grid = Grid("maze.txt")
+
+    astar = AStar(grid)
+    path = astar.find_path()
+
+    print("Найденный путь:")
+    print(path)
+    print("Длина пути:", len(path))
+
     root = tk.Tk()
     app = Application(root)
     root.mainloop()
