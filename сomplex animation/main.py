@@ -60,10 +60,14 @@ if __name__ == "__main__":
     grid = Grid("maze.txt")
 
     astar = AStar(grid)
-    path = astar.find_path()
+    path, visited_order = astar.find_path()
 
     print("Найденный путь:")
     print(path)
+
+    print("Посещённые клетки:")
+    print(visited_order)
+
     print("Длина пути:", len(path))
 
     root = tk.Tk()

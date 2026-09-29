@@ -13,7 +13,7 @@ class AStar:
         return abs(row1 - row2) + abs(col1 - col2)
 
     def find_path(self):
-        """Находит кратчайший путь от начала до конца."""
+        """Находит кратчайший путь и порядок посещения клеток."""
         start = self.grid.start
         end = self.grid.end
 
@@ -22,8 +22,9 @@ class AStar:
         came_from = {start: None}
         cost = {start: 0}
 
+        visited_order = []
+
         while queue:
-            # Ищем клетку с минимальным приоритетом
             current = min(
                 queue,
                 key=lambda cell: (
@@ -33,8 +34,14 @@ class AStar:
 
             queue.remove(current)
 
+            if current in visited_order:
+                continue
+
+            visited_order.append(current)
+
             if current == end:
-                return self._build_path(came_from, end)
+                path = self._build_path(came_from, end)
+                return path, visited_order
 
             for neighbor in self.grid.get_neighbors(*current):
                 new_cost = cost[current] + 1
@@ -47,7 +54,7 @@ class AStar:
                     queue.append(neighbor)
                     came_from[neighbor] = current
 
-        return []
+        return [], visited_order
 
     def _build_path(self, came_from, current):
         """Восстанавливает найденный путь."""
