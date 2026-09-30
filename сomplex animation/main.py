@@ -1,4 +1,5 @@
 import tkinter as tk
+from tkinter import filedialog, messagebox
 
 from src.grid import Grid
 from src.astar import AStar
@@ -24,14 +25,57 @@ class Application:
         )
         self.canvas.pack(padx=10, pady=10)
 
+        self.create_buttons()
         self.draw_grid()
 
+    def create_buttons(self):
+        """Создаёт кнопки управления."""
+        self.button_frame = tk.Frame(self.root)
+        self.button_frame.pack(pady=(0, 10))
+
+        self.load_button = tk.Button(
+            self.button_frame,
+            text="Загрузить лабиринт",
+            command=self.load_maze,
+        )
+        self.load_button.pack(side="left", padx=5)
+
         self.start_button = tk.Button(
-            root,
+            self.button_frame,
             text="Запустить A*",
             command=self.start_astar,
         )
-        self.start_button.pack(pady=(0, 10))
+        self.start_button.pack(side="left", padx=5)
+
+    def load_maze(self):
+        """Загружает лабиринт из текстового файла."""
+        filename = filedialog.askopenfilename(
+            title="Выберите файл лабиринта",
+            filetypes=[
+                ("Текстовые файлы", "*.txt"),
+                ("Все файлы", "*.*"),
+            ],
+        )
+
+        if not filename:
+            return
+
+        try:
+            self.grid = Grid(filename)
+
+            self.canvas.config(
+                width=self.grid.cols * CELL_SIZE,
+                height=self.grid.rows * CELL_SIZE,
+            )
+
+            self.canvas.delete("all")
+            self.draw_grid()
+
+        except (ValueError, IndexError) as error:
+            messagebox.showerror(
+                "Ошибка",
+                f"Не удалось загрузить лабиринт:\n{error}",
+            )
 
     def draw_grid(self):
         """Отрисовывает лабиринт."""
@@ -65,6 +109,7 @@ class Application:
     def start_astar(self):
         """Запускает алгоритм A*."""
         self.start_button.config(state="disabled")
+        self.load_button.config(state="disabled")
 
         astar = AStar(self.grid)
 
@@ -80,7 +125,6 @@ class Application:
             self.show_path()
             return
 
-        # Предыдущая клетка становится посещённой
         if self.current_step > 0:
             prev_row, prev_col = self.visited_order[
                 self.current_step - 1
@@ -96,7 +140,6 @@ class Application:
                     "lightblue",
                 )
 
-        # Текущая клетка становится жёлтой
         row, col = self.visited_order[self.current_step]
 
         if (
@@ -116,8 +159,13 @@ class Application:
     def show_path(self):
         """Показывает найденный путь."""
         if not self.path:
-            print("Путь не найден")
+            messagebox.showinfo(
+                "Результат",
+                "Путь от начала до конца не найден.",
+            )
+
             self.start_button.config(state="normal")
+            self.load_button.config(state="normal")
             return
 
         for row, col in self.path:
@@ -132,6 +180,7 @@ class Application:
                 )
 
         self.start_button.config(state="normal")
+        self.load_button.config(state="normal")
 
     def draw_cell(self, row, col, color):
         """Перерисовывает одну клетку."""
