@@ -3,6 +3,8 @@ from tkinter import filedialog, messagebox
 
 from src.grid import Grid
 from src.astar import AStar
+from src.bfs import BFS
+from src.dfs import DFS
 
 CELL_SIZE = 30
 
@@ -25,27 +27,44 @@ class Application:
         )
         self.canvas.pack(padx=10, pady=10)
 
-        self.create_buttons()
+        self.create_controls()
         self.draw_grid()
 
-    def create_buttons(self):
-        """Создаёт кнопки управления."""
-        self.button_frame = tk.Frame(self.root)
-        self.button_frame.pack(pady=(0, 10))
+    def create_controls(self):
+        """Создаёт элементы управления."""
+        self.control_frame = tk.Frame(self.root)
+        self.control_frame.pack(pady=(0, 10))
+
+        self.algorithm_label = tk.Label(
+            self.control_frame,
+            text="Алгоритм:",
+        )
+        self.algorithm_label.pack(side="left", padx=5)
+
+        self.algorithm = tk.StringVar(value="A*")
+
+        self.algorithm_menu = tk.OptionMenu(
+            self.control_frame,
+            self.algorithm,
+            "A*",
+            "BFS",
+            "DFS",
+        )
+        self.algorithm_menu.pack(side="left", padx=5)
+
+        self.start_button = tk.Button(
+            self.control_frame,
+            text="Запустить",
+            command=self.start_algorithm,
+        )
+        self.start_button.pack(side="left", padx=5)
 
         self.load_button = tk.Button(
-            self.button_frame,
+            self.control_frame,
             text="Загрузить лабиринт",
             command=self.load_maze,
         )
         self.load_button.pack(side="left", padx=5)
-
-        self.start_button = tk.Button(
-            self.button_frame,
-            text="Запустить A*",
-            command=self.start_astar,
-        )
-        self.start_button.pack(side="left", padx=5)
 
     def load_maze(self):
         """Загружает лабиринт из текстового файла."""
@@ -77,6 +96,11 @@ class Application:
                 f"Не удалось загрузить лабиринт:\n{error}",
             )
 
+    def reset_grid(self):
+        """Очищает результаты предыдущего поиска."""
+        self.canvas.delete("all")
+        self.draw_grid()
+
     def draw_grid(self):
         """Отрисовывает лабиринт."""
         for row in range(self.grid.rows):
@@ -106,14 +130,23 @@ class Application:
                     outline="gray",
                 )
 
-    def start_astar(self):
-        """Запускает алгоритм A*."""
+    def start_algorithm(self):
+        """Запускает выбранный алгоритм."""
+        self.reset_grid()
+
         self.start_button.config(state="disabled")
         self.load_button.config(state="disabled")
 
-        astar = AStar(self.grid)
+        algorithm_name = self.algorithm.get()
 
-        self.path, self.visited_order = astar.find_path()
+        if algorithm_name == "A*":
+            algorithm = AStar(self.grid)
+        elif algorithm_name == "BFS":
+            algorithm = BFS(self.grid)
+        else:
+            algorithm = DFS(self.grid)
+
+        self.path, self.visited_order = algorithm.find_path()
 
         self.current_step = 0
 
